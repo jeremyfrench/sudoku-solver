@@ -175,7 +175,7 @@ int possibility_count(int col, int row, sudokuBoard board) {
 }
 
 
-int solve_board(char instring[82]) {
+int solve_board(const char instring[82]) {
 
 	sudokuBoard board;
 
@@ -192,7 +192,7 @@ int solve_board(char instring[82]) {
 	}
 
 	// Output board
-	print_board(board);
+	//print_board(board);
 
 	int check_number = 0;
 	bool board_changed;
@@ -217,8 +217,8 @@ int solve_board(char instring[82]) {
 							board.numbers[i][j] = check_number;
 							board_changed = true;
 							// TODO: put in compiler flags for showing debug.
-							cout << i << "," << j << '=' << check_number << " has to go"<< endl;
-							print_board(board);
+							//cout << i << "," << j << '=' << check_number << " has to go"<< endl;
+							//print_board(board);
 							continue;
 						}
 
@@ -227,8 +227,8 @@ int solve_board(char instring[82]) {
                         	board.numbers[i][j] = check_number;
                             board_changed = true;
 							// TODO: put in compiler flags for showing debug.
-                            cout << i << "," << j << '=' << check_number << " only possible" << endl;
-							print_board(board);
+                            //cout << i << "," << j << '=' << check_number << " only possible" << endl;
+							//print_board(board);
                        }
 					}
 				}
@@ -242,10 +242,15 @@ int solve_board(char instring[82]) {
 	}
 
 	// Check to see if solved.
-
+    bool solved = true;
+    for (int i = 0; i < 9; i++) {
+    				for (int j = 0; j < 9; j++) {
+    					if (board.numbers[i][j] == 0) solved = false;
+    				}
+    }
     // TODO: add validator to check results (very important for testing).
 
 	// Output final board
-	print_board(board);
-	return 1;
+	//print_board(board);
+	return (int) solved;
 }

@@ -5,6 +5,7 @@
 // Copyright   : Your copyright notice
 // Description : Hello World in C++, Ansi-style
 //============================================================================
+// Allong the corridor and up the stairs
 
 #include <iostream>
 #include <string>
@@ -20,18 +21,10 @@ using namespace std;
 
 
 int main() {
-	// TODO: Start Timer
- 	// Allong the corridor and up the stairs
-
-	// Temp measuer to get some data in.
-	//char instring[82] = "12345678912345678912345 7891234567891234567 9123456789123456789 23456789123456789";
-	//char instring[] =
-	//		"   5  748 59  1  3 4 7 6  94 5 1 37    4 5    86 2 4 55  6 3 2 8  1  53 973  4   ";
-	// CITYAM 13/09/2012 tricky
-	char instring[82] = "   97 3   7     6     5  2 9  1     45       1 6  8    1   4 87  45    172     3 ";
-
-
-	int out;
+   string instring;
+   int out;
+   int counter = 0;
+   int solved_counter = 0;
     #ifdef __MACH__
 	  kern_return_t ret;
 	  clock_serv_t aClock;
@@ -49,14 +42,30 @@ int main() {
 	         // NO timer
 	         }
 	#endif
-	out = solve_board(instring);
-    #ifdef __MACH__
+	while (getline(cin,instring)) {
+      const char * inchars;
+      inchars= instring.c_str();
+      counter++;
+	  out = solve_board(inchars);
+	  if (out) {
+		  solved_counter++;
+	  }
+	}
+	#ifdef __MACH__
 	ret = clock_get_time(aClock, &bTime);
 		         if (ret != KERN_SUCCESS) {
 		         // NO timer
 		         }
+    cout << "Solved " << solved_counter << " of " << counter <<" boards" << endl;
+// TODO: pad or format number
+    cout << (bTime.tv_sec - aTime.tv_sec) << " Seconds ";
+	if(bTime.tv_sec - aTime.tv_sec >= 1) {
+		cout << (1000000000 + bTime.tv_nsec - aTime.tv_nsec) << " Nanoseconds ";
+	}
+	else {
+		cout << (bTime.tv_nsec - aTime.tv_nsec) << " Nanoseconds ";
+	}
 
-	cout << (bTime.tv_sec - aTime.tv_sec) << " Seconds " << (bTime.tv_nsec - aTime.tv_nsec) << " Nanoseconds ";
 	cout << endl;
     #endif
 

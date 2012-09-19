@@ -46,6 +46,7 @@ int main() {
       const char * inchars;
       inchars= instring.c_str();
       counter++;
+      //TODO: standard format for out strings
 	  out = solve_board(inchars);
 	  if (out) {
 		  solved_counter++;

@@ -167,8 +167,6 @@ int possibility_count(int col, int row, sudokuBoard board) {
 		if (row_possible[k] && column_possible[k] && bigsquare_possible[k]) {
 			possible_count++;
 		}
-		if(col == 1 && row == 5)
-	    	cout << col << k << row_possible[k] << column_possible[k] << bigsquare_possible[k] << endl;
 
 	}
 	return possible_count;

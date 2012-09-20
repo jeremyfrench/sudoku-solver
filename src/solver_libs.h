@@ -190,7 +190,7 @@ int solve_board(const char instring[82]) {
 	}
 
 	// Output board
-	print_board(board);
+	//print_board(board);
 
 	unsigned char check_number = 0;
 	bool board_changed;
@@ -215,8 +215,8 @@ int solve_board(const char instring[82]) {
 							board.numbers[i][j] = check_number;
 							board_changed = true;
 							// TODO: put in compiler flags for showing debug.
-							cout << i << "," << j << '=' << char(check_number+48) << " has to go"<< endl;
-							print_board(board);
+							//cout << i << "," << j << '=' << char(check_number+48) << " has to go"<< endl;
+							//print_board(board);
 							continue;
 						}
 
@@ -225,8 +225,8 @@ int solve_board(const char instring[82]) {
                         	board.numbers[i][j] = check_number;
                             board_changed = true;
 							// TODO: put in compiler flags for showing debug.
-                            cout << i << "," << j << '=' << char(check_number+48) << " only possible" << endl;
-							print_board(board);
+                            //cout << i << "," << j << '=' << char(check_number+48) << " only possible" << endl;
+							//print_board(board);
                        }
 					}
 				}
@@ -249,6 +249,6 @@ int solve_board(const char instring[82]) {
     // TODO: add validator to check results (very important for testing).
 
 	// Output final board
-	print_board(board);
+	//print_board(board);
 	return (int) solved;
 }

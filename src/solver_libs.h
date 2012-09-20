@@ -190,8 +190,9 @@ int solve_board(const char instring[82]) {
 	}
 
 	// Output board
-	//print_board(board);
-
+    #ifdef DEBUG
+	print_board(board);
+    #endif
 	unsigned char check_number = 0;
 	bool board_changed;
 	// Start with a slow but potentially easy to understand algrothim
@@ -214,9 +215,10 @@ int solve_board(const char instring[82]) {
 						if (possible_count == 1) {
 							board.numbers[i][j] = check_number;
 							board_changed = true;
-							// TODO: put in compiler flags for showing debug.
-							//cout << i << "," << j << '=' << char(check_number+48) << " has to go"<< endl;
-							//print_board(board);
+                            #ifdef DEBUG
+							cout << i << "," << j << '=' << char(check_number+48) << " has to go"<< endl;
+							print_board(board);
+                            #endif
 							continue;
 						}
 
@@ -224,9 +226,10 @@ int solve_board(const char instring[82]) {
                        if(number_can_only_go(i,j,check_number,board)) {
                         	board.numbers[i][j] = check_number;
                             board_changed = true;
-							// TODO: put in compiler flags for showing debug.
-                            //cout << i << "," << j << '=' << char(check_number+48) << " only possible" << endl;
-							//print_board(board);
+                            #ifdef DEBUG
+							cout << i << "," << j << '=' << char(check_number+48) << " only possible" << endl;
+							print_board(board);
+                            #endif
                        }
 					}
 				}
@@ -249,6 +252,8 @@ int solve_board(const char instring[82]) {
     // TODO: add validator to check results (very important for testing).
 
 	// Output final board
-	//print_board(board);
+    #ifdef DEBUG
+	print_board(board);
+    #endif
 	return (int) solved;
 }

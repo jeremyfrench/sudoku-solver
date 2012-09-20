@@ -5,11 +5,11 @@
 using namespace std;
 
 struct nineInt {
-	int item[9];
+	unsigned char item[9];
 };
 
 struct sudokuBoard {
-	int numbers[9][9];
+	unsigned char	 numbers[9][9];
 };
 
 void print_board(sudokuBoard board) {
@@ -21,7 +21,7 @@ void print_board(sudokuBoard board) {
 				if (j % 3 == 0) {
 					cout << '|';
 				}
-				cout << board.numbers[j][i];
+				cout << char(board.numbers[j][i]+48);
 			}
 			cout << '|' << endl;
 		}
@@ -163,7 +163,7 @@ int possibility_count(int col, int row, sudokuBoard board) {
 	}
 
 	int possible_count = 0;
-	for (int k = 0; k < 9; k++) {
+	for (unsigned char k = 0; k < 9; k++) {
 		if (row_possible[k] && column_possible[k] && bigsquare_possible[k]) {
 			possible_count++;
 		}
@@ -190,9 +190,9 @@ int solve_board(const char instring[82]) {
 	}
 
 	// Output board
-	//print_board(board);
+	print_board(board);
 
-	int check_number = 0;
+	unsigned char check_number = 0;
 	bool board_changed;
 	// Start with a slow but potentially easy to understand algrothim
 	for (;;) {
@@ -215,8 +215,8 @@ int solve_board(const char instring[82]) {
 							board.numbers[i][j] = check_number;
 							board_changed = true;
 							// TODO: put in compiler flags for showing debug.
-							//cout << i << "," << j << '=' << check_number << " has to go"<< endl;
-							//print_board(board);
+							cout << i << "," << j << '=' << char(check_number+48) << " has to go"<< endl;
+							print_board(board);
 							continue;
 						}
 
@@ -225,8 +225,8 @@ int solve_board(const char instring[82]) {
                         	board.numbers[i][j] = check_number;
                             board_changed = true;
 							// TODO: put in compiler flags for showing debug.
-                            //cout << i << "," << j << '=' << check_number << " only possible" << endl;
-							//print_board(board);
+                            cout << i << "," << j << '=' << char(check_number+48) << " only possible" << endl;
+							print_board(board);
                        }
 					}
 				}
@@ -249,6 +249,6 @@ int solve_board(const char instring[82]) {
     // TODO: add validator to check results (very important for testing).
 
 	// Output final board
-	//print_board(board);
+	print_board(board);
 	return (int) solved;
 }

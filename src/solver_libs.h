@@ -4,6 +4,15 @@
 
 using namespace std;
 
+struct gridref {
+	unsigned char row;
+	unsigned char col;
+};
+
+struct gridreflist {
+	gridref positions[9];
+};
+
 struct nineInt {
 	unsigned char item[9];
 };
@@ -29,103 +38,71 @@ void print_board(sudokuBoard board) {
 		cout << "+---+---+---+" << endl;
 }
 
-nineInt bigsquare_row_ids(int col, int row) {
-	int bigsquare_row_start = row - (row % 3);
-	nineInt rows;
-	for (int i = 0; i < 9; i++) {
-		rows.item[i] = bigsquare_row_start + (i / 3);
-	}
-	return rows;
+gridreflist bigsquare_refs(int col, int row) {
+	unsigned char bigsquare_col_start = col - (col % 3);
+	unsigned char bigsquare_row_start = row - (row % 3);
+    gridreflist refs;
+    for (int i = 0; i < 9; i++) {
+    	refs.positions[i].row = bigsquare_row_start + (i / 3);
+    	refs.positions[i].col = bigsquare_col_start + (i % 3);
+    }
+    return refs;
 }
 
-nineInt bigsquare_col_ids(int col, int row) {
-	int bigsquare_col_start = col - (col % 3);
-	nineInt cols;
-	//TODO: change this logic so it does 111222333
-	for (int i = 0; i < 9; i++) {
-		cols.item[i] = bigsquare_col_start + (i % 3);
-	}
-	return cols;
-}
 
 bool number_is_possibe(int col, int row, int check_number, sudokuBoard board) {
-	bool row_possible_check, column_possible_check, bigsquare_possible_check;
-	nineInt bigsquare_row_ref;
-	nineInt bigsquare_col_ref;
-
 	if(board.numbers[col][row] != 0) {
-		return 0;
+		return false;
 	}
-
-	bigsquare_row_ref = bigsquare_row_ids(col, row);
-	bigsquare_col_ref = bigsquare_col_ids(col, row);
-
-	row_possible_check = true;
 	for (int k = 0; k < 9; k++) {
 		if (board.numbers[col][k] == check_number) {
-			row_possible_check = false;
+			return false;
 		}
-	}
-	column_possible_check = true;
-	for (int k = 0; k < 9; k++) {
 		if (board.numbers[k][row] == check_number) {
-			column_possible_check = false;
+			return false;
 		}
 	}
-	bigsquare_possible_check = true;
-
+	gridreflist refs = bigsquare_refs(col,row);
 	for (int k = 0; k < 9; k++) {
-		int bs_row = bigsquare_row_ref.item[k];
-		int bs_col = bigsquare_col_ref.item[k];
-		if (board.numbers[bs_col][bs_row] == check_number) {
-			bigsquare_possible_check = false;
+		if (board.numbers[refs.positions[k].col][refs.positions[k].row] == check_number) {
+			return false;
 		}
-	}
-
-	if (!bigsquare_possible_check || !row_possible_check
-			|| !column_possible_check) {
-		return false;
 	}
 	return true;
 }
 
 bool number_can_only_go(int col, int row, int check_number, sudokuBoard board) {
-	bool row_only_check, column_only_check, bigsquare_only_check;
-	nineInt bigsquare_row_ref;
-	nineInt bigsquare_col_ref;
-	bigsquare_row_ref = bigsquare_row_ids(col, row);
-	bigsquare_col_ref = bigsquare_col_ids(col, row);
 
-	row_only_check = true;
+	bool row_only_check = true;
 	for (int k = 0; k < 9; k++) {
 		if (k==row) {continue;}
 		if(number_is_possibe(col,k,check_number,board)) {
 			row_only_check = false;
 		}
 	}
-	column_only_check = true;
+	if(row_only_check) { return true; }
+
+	bool column_only_check = true;
 	for (int k = 0; k < 9; k++) {
 		if(k==col) {continue;}
 		if(number_is_possibe(k,row,check_number,board)) {
 					column_only_check = false;
 				}
 	}
-	bigsquare_only_check = false;
+	if(column_only_check) { return true; }
+
+	bool bigsquare_only_check = false;
+    gridreflist refs = bigsquare_refs(col,row);
 	for (int k = 0; k < 9; k++) {
-		int bs_row = bigsquare_row_ref.item[k];
-		int bs_col = bigsquare_col_ref.item[k];
+		int bs_row = refs.positions[k].row;
+		int bs_col = refs.positions[k].col;
 		if(bs_row == row && bs_col == col) { continue ;}
 		if (number_is_possibe(bs_col,bs_row,check_number,board)) {
 			bigsquare_only_check = false;
 		}
-		}
-    // TODO: other cases??
-
-	if (bigsquare_only_check || row_only_check
-			|| column_only_check) {
-		return true;
 	}
-	return false;
+    if(bigsquare_only_check) { return true; }
+    return false;
 }
 
 int possibility_count(int col, int row, sudokuBoard board) {
@@ -154,10 +131,10 @@ int possibility_count(int col, int row, sudokuBoard board) {
 
 	for (int k = 0; k < 9; k++) {
 
-		nineInt bigsquare_row = bigsquare_row_ids(col, row);
-		nineInt bigsquare_col = bigsquare_col_ids(col, row);
-		if (board.numbers[bigsquare_col.item[k]][bigsquare_row.item[k]] != 0) {
-			bigsquare_possible[board.numbers[bigsquare_col.item[k]][bigsquare_row.item[k]]
+		gridreflist refs = bigsquare_refs(col,row);
+
+		if (board.numbers[refs.positions[k].col][refs.positions[k].row] != 0) {
+			bigsquare_possible[board.numbers[refs.positions[k].col][refs.positions[k].row]
 					- 1] = false;
 			}
 	}

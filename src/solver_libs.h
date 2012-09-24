@@ -44,6 +44,9 @@ const unsigned char bigsquare_refs_pos[9][9] = {
 
 struct sudokuBoard {
 	unsigned char	 numbers[81];
+	unsigned char    possible_count[81];
+	int              possible_updated[81];
+	int update_counter;
 };
 
 void print_board(sudokuBoard board) {
@@ -136,6 +139,9 @@ int possibility_count(unsigned char pos, sudokuBoard board) {
 	if(board.numbers[pos] != 0) {
 		return 0;
 	}
+	if(board.possible_updated[pos] == board.update_counter) {
+		return board.possible_count[pos];
+	}
 
 	bool row_possible[9] = { true, true, true, true, true, true, true, true,
 			true };
@@ -174,6 +180,8 @@ int possibility_count(unsigned char pos, sudokuBoard board) {
 
 
 	}
+	board.possible_count[pos] = possible_count;
+	board.possible_updated[pos] = board.update_counter;
 	return possible_count;
 }
 
@@ -186,11 +194,14 @@ int solve_board(const char instring[82]) {
 	for (int i = 0; i < 81; i++) {
 		if (instring[i] >= 48 && instring[i] < 58) {
 			board.numbers[i] = instring[i] - 48;
+			board.possible_count[i]=0;
 		} else {
 			board.numbers[i] = 0;
+			board.possible_count[i]=9;
 		}
+		board.possible_updated[i] = -1;
 	}
-
+    board.update_counter=0;
 
 	// Output board
     #ifdef DEBUG
@@ -217,6 +228,7 @@ int solve_board(const char instring[82]) {
 						if (possible_count == 1) {
 							board.numbers[i] = check_number;
 							board_changed = true;
+							board.update_counter++;
                             #ifdef DEBUG
 							cout << char(i%9+48) << ',' << char(i/9+48) << '=' << char(check_number+48) << " has to go"<< endl;
 							print_board(board);
@@ -228,6 +240,7 @@ int solve_board(const char instring[82]) {
                        if(number_can_only_go(i,check_number,board)) {
                         	board.numbers[i] = check_number;
                             board_changed = true;
+                            board.update_counter++;
                             #ifdef DEBUG
 							cout << char(i%9+48) << ',' << char(i/9+48)  << '=' << char(check_number+48) << " only possible" << endl;
 							print_board(board);

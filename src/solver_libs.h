@@ -33,9 +33,9 @@ const unsigned char bigsquare_refs[81] = {
 const unsigned char bigsquare_refs_pos[9][9] = {
 		{ 0,  1,  2,  9, 10, 11, 18, 19, 20},
 		{ 3,  4,  5, 12, 13, 14, 21, 22, 23},
-		{ 5,  6,  7, 15, 16, 17, 24, 25, 26},
+		{ 6,  7,  8, 15, 16, 17, 24, 25, 26},
 		{27, 28, 29, 36, 37, 38, 45, 46, 47},
-		{39, 31, 32, 39, 40, 41, 48, 49, 50},
+		{30, 31, 32, 39, 40, 41, 48, 49, 50},
 		{33, 34, 35, 42, 43, 44, 51, 52, 53},
 		{54, 55, 56, 63, 64, 65, 72, 73, 74},
 		{57 ,58 ,59, 66, 67, 68, 75, 76, 77},
@@ -67,10 +67,10 @@ void print_board(sudokuBoard board) {
 
 
 bool number_is_possibe(unsigned char pos, unsigned char check_number, sudokuBoard board) {
-	bool row_possible_check, column_possible_check, bigsquare_possible_check;
 	if(board.numbers[pos] != 0) {
 		return false;
 	}
+
 
 	for (int k = (pos - (pos % 9)); k < (pos - (pos % 9) +9); k++) {
 
@@ -100,19 +100,20 @@ bool number_can_only_go(unsigned char pos, unsigned char check_number, sudokuBoa
 	row_only_check = true;
 	for (int k = (pos - (pos % 9)); k < (pos - (pos % 9) +9); k++) {
 		if (k==pos) {continue;}
-		if(number_is_possibe(pos,check_number,board)) {
+		if(number_is_possibe(k,check_number,board)) {
 			row_only_check = false;
 		}
 	}
 
+
 	column_only_check = true;
 	for (int k = (pos%9); k < 81; k+=9) {
 	    if(k==pos) {continue;}
-		if(number_is_possibe(pos,check_number,board)) {
+		if(number_is_possibe(k,check_number,board)) {
 					column_only_check = false;
 				}
 	}
-	bigsquare_only_check = false;
+	bigsquare_only_check = true;
 	unsigned char bigsquare = bigsquare_refs[pos];
 
 	for (int k = 0; k < 9; k++) {
@@ -144,19 +145,18 @@ int possibility_count(unsigned char pos, sudokuBoard board) {
 			true, true };
 
 	for (int k = (pos - (pos % 9)); k < (pos - (pos % 9) +9); k++) {
-			if (board.numbers[pos] != 0) {
-			row_possible[board.numbers[pos] - 1] = false;
+			if (board.numbers[k] != 0) {
+			row_possible[board.numbers[k] - 1] = false;
 		}
 	}
 	for (int k = (pos%9); k < 81; k+=9) {
-			if (board.numbers[pos] != 0) {
-			column_possible[board.numbers[pos] - 1] = false;
+			if (board.numbers[k] != 0) {
+			column_possible[board.numbers[k] - 1] = false;
 		}
 	}
 
 	unsigned char bigsquare = bigsquare_refs[pos];
 	for (int k = 0; k < 9; k++) {
-
 		if (board.numbers[bigsquare_refs_pos[bigsquare][k]] != 0) {
 			bigsquare_possible[board.numbers[bigsquare_refs_pos[bigsquare][k]]
 					- 1] = false;
@@ -165,9 +165,13 @@ int possibility_count(unsigned char pos, sudokuBoard board) {
 
 	int possible_count = 0;
 	for (int k = 0; k < 9; k++) {
+/*		if(pos == 9) {
+			cout << k << row_possible[k] << column_possible[k] << bigsquare_possible[k] << endl;
+		}*/
 		if (row_possible[k] && column_possible[k] && bigsquare_possible[k]) {
 			possible_count++;
 		}
+
 
 	}
 	return possible_count;
@@ -214,7 +218,7 @@ int solve_board(const char instring[82]) {
 							board.numbers[i] = check_number;
 							board_changed = true;
                             #ifdef DEBUG
-							cout << i << '=' << char(check_number+48) << " has to go"<< endl;
+							cout << char(i%9+48) << ',' << char(i/9+48) << '=' << char(check_number+48) << " has to go"<< endl;
 							print_board(board);
                             #endif
 							continue;
@@ -225,7 +229,7 @@ int solve_board(const char instring[82]) {
                         	board.numbers[i] = check_number;
                             board_changed = true;
                             #ifdef DEBUG
-							cout << i  << '=' << char(check_number+48) << " only possible" << endl;
+							cout << char(i%9+48) << ',' << char(i/9+48)  << '=' << char(check_number+48) << " only possible" << endl;
 							print_board(board);
                             #endif
                        }

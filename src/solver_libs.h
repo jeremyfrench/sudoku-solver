@@ -49,7 +49,9 @@ struct sudokuBoard {
 	int update_counter;
 };
 
-void print_board(sudokuBoard board) {
+sudokuBoard board;
+
+void print_board() {
 	for (int i = 0; i < 81; i++) {
 			if (i % 27 == 0) {
 				if (i != 0) {
@@ -69,7 +71,7 @@ void print_board(sudokuBoard board) {
 }
 
 
-bool number_is_possibe(unsigned char pos, unsigned char check_number, sudokuBoard board) {
+bool number_is_possibe(unsigned char pos, unsigned char check_number) {
 	if(board.numbers[pos] != 0) {
 		return false;
 	}
@@ -97,13 +99,13 @@ bool number_is_possibe(unsigned char pos, unsigned char check_number, sudokuBoar
 	return true;
 }
 
-bool number_can_only_go(unsigned char pos, unsigned char check_number, sudokuBoard board) {
+bool number_can_only_go(unsigned char pos, unsigned char check_number) {
 	bool row_only_check, column_only_check, bigsquare_only_check;
 
 	row_only_check = true;
 	for (int k = (pos - (pos % 9)); k < (pos - (pos % 9) +9); k++) {
 		if (k==pos) {continue;}
-		if(number_is_possibe(k,check_number,board)) {
+		if(number_is_possibe(k,check_number)) {
 			row_only_check = false;
 		}
 	}
@@ -112,7 +114,7 @@ bool number_can_only_go(unsigned char pos, unsigned char check_number, sudokuBoa
 	column_only_check = true;
 	for (int k = (pos%9); k < 81; k+=9) {
 	    if(k==pos) {continue;}
-		if(number_is_possibe(k,check_number,board)) {
+		if(number_is_possibe(k,check_number)) {
 					column_only_check = false;
 				}
 	}
@@ -121,7 +123,7 @@ bool number_can_only_go(unsigned char pos, unsigned char check_number, sudokuBoa
 
 	for (int k = 0; k < 9; k++) {
 		if(bigsquare_refs_pos[bigsquare][k] == pos) { continue ;}
-		if (number_is_possibe(bigsquare_refs_pos[bigsquare][k],check_number,board)) {
+		if (number_is_possibe(bigsquare_refs_pos[bigsquare][k],check_number)) {
 			bigsquare_only_check = false;
 		}
 		}
@@ -134,7 +136,7 @@ bool number_can_only_go(unsigned char pos, unsigned char check_number, sudokuBoa
 	return false;
 }
 
-int possibility_count(unsigned char pos, sudokuBoard board) {
+int possibility_count(unsigned char pos) {
 	// Work out possible numbers
 	if(board.numbers[pos] != 0) {
 		return 0;
@@ -188,7 +190,7 @@ int possibility_count(unsigned char pos, sudokuBoard board) {
 
 int solve_board(const char instring[82]) {
 
-	sudokuBoard board;
+
 
 	// Put string into 9x9 array for easier refernce
 	for (int i = 0; i < 81; i++) {
@@ -218,13 +220,13 @@ int solve_board(const char instring[82]) {
 					//Only look blank squares.
 					if (board.numbers[i] == 0) {
 						// First check if it is possible to place check_number in this square
-						if (!number_is_possibe(i,check_number,board)) {
+						if (!number_is_possibe(i,check_number)) {
 							continue;
 						}
 						// Then check if check_number HAS to go in this square
 						// Work out possible numbers
 						// TODO: investigate sets.
-						int possible_count = possibility_count(i, board);
+						int possible_count = possibility_count(i);
 						if (possible_count == 1) {
 							board.numbers[i] = check_number;
 							board_changed = true;
@@ -237,7 +239,7 @@ int solve_board(const char instring[82]) {
 						}
 
 						// Finally check if it is only possible for check_number to go in this square.
-                       if(number_can_only_go(i,check_number,board)) {
+                       if(number_can_only_go(i,check_number)) {
                         	board.numbers[i] = check_number;
                             board_changed = true;
                             board.update_counter++;

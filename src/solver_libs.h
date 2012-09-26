@@ -75,28 +75,40 @@ bool number_is_possibe(unsigned char pos, unsigned char check_number) {
 	if(board.numbers[pos] != 0) {
 		return false;
 	}
+    bool check = true;
+    unsigned char start = pos - (pos % 9);
+    check = check && (board.numbers[start] != check_number);
+    check = check && (board.numbers[start+1] != check_number);
+    check = check && (board.numbers[start+2] != check_number);
+    check = check && (board.numbers[start+3] != check_number);
+    check = check && (board.numbers[start+4] != check_number);
+    check = check && (board.numbers[start+5] != check_number);
+    check = check && (board.numbers[start+6] != check_number);
+    check = check && (board.numbers[start+7] != check_number);
+    check = check && (board.numbers[start+8] != check_number);
 
+    start = pos%9;
+    check = check && (board.numbers[start] != check_number);
+    check = check && (board.numbers[start+9] != check_number);
+    check = check && (board.numbers[start+18] != check_number);
+    check = check && (board.numbers[start+27] != check_number);
+    check = check && (board.numbers[start+36] != check_number);
+    check = check && (board.numbers[start+45] != check_number);
+    check = check && (board.numbers[start+54] != check_number);
+    check = check && (board.numbers[start+63] != check_number);
+    check = check && (board.numbers[start+72] != check_number);
 
-	for (int k = (pos - (pos % 9)); k < (pos - (pos % 9) +9); k++) {
-
-		if (board.numbers[k] == check_number) {
-			return false;
-		}
-	}
-
-	for (int k = (pos%9); k < 81; k+=9) {
-		if (board.numbers[k] == check_number) {
-			return false;
-		}
-	}
-
-	unsigned char bigsquare = bigsquare_refs[pos];
-    for (int k = 0; k < 9; k++) {
-		if (board.numbers[bigsquare_refs_pos[bigsquare][k]] == check_number) {
-			return false;
-		}
-	}
-	return true;
+    start = bigsquare_refs[pos];
+    check = check && (board.numbers[bigsquare_refs_pos[start][0]] != check_number);
+    check = check && (board.numbers[bigsquare_refs_pos[start][1]] != check_number);
+    check = check && (board.numbers[bigsquare_refs_pos[start][2]] != check_number);
+    check = check && (board.numbers[bigsquare_refs_pos[start][3]] != check_number);
+    check = check && (board.numbers[bigsquare_refs_pos[start][4]] != check_number);
+    check = check && (board.numbers[bigsquare_refs_pos[start][5]] != check_number);
+    check = check && (board.numbers[bigsquare_refs_pos[start][6]] != check_number);
+    check = check && (board.numbers[bigsquare_refs_pos[start][7]] != check_number);
+    check = check && (board.numbers[bigsquare_refs_pos[start][8]] != check_number);
+	return check;
 }
 
 bool number_can_only_go(unsigned char pos, unsigned char check_number) {
@@ -145,38 +157,50 @@ int possibility_count(unsigned char pos) {
 		return board.possible_count[pos];
 	}
 
-	bool row_possible[9] = { true, true, true, true, true, true, true, true,
-			true };
-	bool column_possible[9] = { true, true, true, true, true, true, true, true,
-			true };
-	bool bigsquare_possible[9] = { true, true, true, true, true, true, true,
+	bool possible[10] = { true, true, true, true, true, true, true, true,
 			true, true };
 
-	for (int k = (pos - (pos % 9)); k < (pos - (pos % 9) +9); k++) {
-			if (board.numbers[k] != 0) {
-			row_possible[board.numbers[k] - 1] = false;
-		}
-	}
-	for (int k = (pos%9); k < 81; k+=9) {
-			if (board.numbers[k] != 0) {
-			column_possible[board.numbers[k] - 1] = false;
-		}
-	}
+	// Check the numbers in the row and remove them from possible numbers.
+	unsigned char start = pos - (pos % 9);
+	possible[board.numbers[start]] = false;
+	possible[board.numbers[start+1]] = false;
+	possible[board.numbers[start+2]] = false;
+	possible[board.numbers[start+3]] = false;
+	possible[board.numbers[start+4]] = false;
+	possible[board.numbers[start+5]] = false;
+	possible[board.numbers[start+6]] = false;
+	possible[board.numbers[start+7]] = false;
+	possible[board.numbers[start+8]] = false;
 
-	unsigned char bigsquare = bigsquare_refs[pos];
-	for (int k = 0; k < 9; k++) {
-		if (board.numbers[bigsquare_refs_pos[bigsquare][k]] != 0) {
-			bigsquare_possible[board.numbers[bigsquare_refs_pos[bigsquare][k]]
-					- 1] = false;
-			}
-	}
+	start = pos%9;
+    // Check the numbers in the col and remove them from possible numbers.
+	possible[board.numbers[start]] = false;
+	possible[board.numbers[start+9]] = false;
+	possible[board.numbers[start+18]] = false;
+	possible[board.numbers[start+27]] = false;
+	possible[board.numbers[start+36]] = false;
+	possible[board.numbers[start+45]] = false;
+	possible[board.numbers[start+54]] = false;
+	possible[board.numbers[start+63]] = false;
+	possible[board.numbers[start+72]] = false;
+
+	start = bigsquare_refs[pos];
+
+	possible[board.numbers[bigsquare_refs_pos[start][0]]] = false;
+	possible[board.numbers[bigsquare_refs_pos[start][1]]] = false;
+	possible[board.numbers[bigsquare_refs_pos[start][2]]] = false;
+	possible[board.numbers[bigsquare_refs_pos[start][3]]] = false;
+	possible[board.numbers[bigsquare_refs_pos[start][4]]] = false;
+	possible[board.numbers[bigsquare_refs_pos[start][5]]] = false;
+	possible[board.numbers[bigsquare_refs_pos[start][6]]] = false;
+	possible[board.numbers[bigsquare_refs_pos[start][7]]] = false;
+	possible[board.numbers[bigsquare_refs_pos[start][8]]] = false;
+
+
 
 	int possible_count = 0;
-	for (int k = 0; k < 9; k++) {
-/*		if(pos == 9) {
-			cout << k << row_possible[k] << column_possible[k] << bigsquare_possible[k] << endl;
-		}*/
-		if (row_possible[k] && column_possible[k] && bigsquare_possible[k]) {
+	for (int k = 1; k < 10; k++) {
+		if (possible[k]) {
 			possible_count++;
 		}
 

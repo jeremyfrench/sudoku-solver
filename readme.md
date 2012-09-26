@@ -1,4 +1,4 @@
-== Journey of a Sudoku solver ==
+# Journey of a Sudoku solver # 
 
 This project is an attempt to build a fast Sudoku solver. Starting with an algorithm which is basic and slow. Incrementally improving until it is hopefully quite good.
 
@@ -11,19 +11,24 @@ Every new improvement I make to the code I will git tag and add a benchmark to t
 Realizing quite fast that the simple approach I took is good enough for most sim
 ple newspaper puzzles, but there is a lot left to learn about Sudoku solving.
 
-=== Releases ===
+## Releases ## 
  
-* journey/0.0.1 First pass solves some boards but by no means all
-* journey/0.0.2 Replace int with unsigned char for board and compairsons 25% improvement in run time.
-* journey/0.0.3 Change the calculations for the for the bigsquare into a lookup table and moved the array to be a 1d array, while in memory this isn't much different there is less computation needed to lookup addresses. This aslo resulted in more boards being sovled, I'm assuming that there was a bug in earlier versions.
-* journey/0.0.4 Added some board state so that possible value count is not calucated each time and moved the board into a global variable.
-* journey/0.0.5 Unwrapped some of the loops more code but a faster time. 
-=Roadmap=
+*  journey/0.0.1 First pass solves some boards but by no means all
+*  journey/0.0.2 Replace int with unsigned char for board and compairsons 25% improvement in run time.
+*  journey/0.0.3 Change the calculations for the for the bigsquare into a lookup table and moved the array to be a 1d array, while in memory this isn't much different there is less computation needed to lookup addresses. This aslo resulted in more boards being sovled, I'm assuming that there was a bug in earlier versions.
+*  journey/0.0.4 Added some board state so that possible value count is not calucated each time and moved the board into a global variable.
+*  journey/0.0.5 Unwrapped some of the loops more code but a faster time. 
 
-0.0 versions should probalby solve no more boards but do it faster. 
+## Roadmap ##
 
-* Try some profiling tools to work out the current bottlenecks
+Look at doing a tick toc approach, on the tic (even versions) speed up the solver on the tock (odd versions) solve more problems.
 
-0.1 Versions will look at solving more problems using known solutions
+*  0.0 versions should probalby not solve more boards but do it faster. 
+   * Try some profiling tools to work out the current bottlenecks.
+   * Look at using bitmasks and binay operations to use less cycles.
 
-Future versions are unknown will possibly include brute force and asm.
+*  0.1 Versions will look at solving more problems using known solutions
+*  0.2 ASM here we come
+*  0.3 Branching and guessing
+
+

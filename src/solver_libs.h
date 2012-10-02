@@ -1,6 +1,8 @@
 #include <iostream>
+#include <stdint.h>
 #include <string>
 #include <stdlib.h>
+
 
 using namespace std;
 const unsigned char bigsquare_refs[81] = {
@@ -42,18 +44,42 @@ const unsigned char bigsquare_refs_pos[9][9] = {
 		{60, 61, 62, 69, 70, 71, 78, 79, 80}
 };
 
+/*
+ * Use 4 bytes to store a square and it's state
+ *
+ * 01|02|03|04|05|06|07|08||09|10|11|12|13|14|15|16||17|18|19|20|21|22|23|24||25|26|27|28|29|30|31|32
+ * F1|S1|03|04|05|06|07|V1||V2|V3|V4|V5|V6|V7|V8|V9||P1|P2|P3|P4|P5|P6|P7|N1||N2|N3|N4|N5|N6|N7|N8|N9
+ *
+ * PP the squares position 0-81 (shift right one and use as unsigned byte)
+ * V1-V9 The value in the square if F1 is set.
+ * N1-N9 The possible values that the square could be.
+ * NN possiblity set 24 = 1 possible -- 32 9 possible
+ * VV the squares value
+ * F1 solved flag
+ * S1 Stale flag
+ */
+
+const uint32_t number_masks[9] = {
+	0x00000001, // 1
+	0x00000002, // 2
+	0x00000004, // 3
+	0x00000008, // 4
+	0x00000010, // 5
+	0x00000020, // 6
+	0x00000040, // 7
+	0x00000080, // 8
+	0x00000100, // 9
+};
+
 struct sudokuBoard {
-	unsigned char	 numbers[81];
-	unsigned char    possible_count[81];
-	int              possible_updated[81];
-	int update_counter;
+	uint32_t numbers[81];
 };
 
 sudokuBoard board;
 
 void print_board() {
 	for (int i = 0; i < 81; i++) {
-			if (i % 27 == 0) {
+		if (i % 27 == 0) {
 				if (i != 0) {
 					cout << '|';
 				}
@@ -65,51 +91,29 @@ void print_board() {
 			else if (i % 3 == 0) {
 				cout << '|';
 			}
-			cout << char(board.numbers[i]+48);
+			//TODO: work out the number and if it is set.
+			char number;
+			if (board.numbers[i] & 0x80000000) {
+			    uint32_t working;
+                working = board.numbers[i] >> 16;
+                // lowest bit set hack from bit twiddling how to.
+                working = (working ^ (working - 1)) >> 1;
+                for (number = 49; working; number++)
+                  {
+                	//cout << working << endl;
+                	working >>= 1;
+                  }
+			}
+			else {
+				number = 48;
+			}
+
+			cout << char(number);
 		}
 		cout << '|' << endl << "+---+---+---+" << endl;
 }
 
 
-bool number_is_possibe(unsigned char pos, unsigned char check_number) {
-	if(board.numbers[pos] != 0) {
-		return false;
-	}
-    bool check = true;
-    unsigned char start = pos - (pos % 9);
-    check = check && (board.numbers[start] != check_number);
-    check = check && (board.numbers[start+1] != check_number);
-    check = check && (board.numbers[start+2] != check_number);
-    check = check && (board.numbers[start+3] != check_number);
-    check = check && (board.numbers[start+4] != check_number);
-    check = check && (board.numbers[start+5] != check_number);
-    check = check && (board.numbers[start+6] != check_number);
-    check = check && (board.numbers[start+7] != check_number);
-    check = check && (board.numbers[start+8] != check_number);
-
-    start = pos%9;
-    check = check && (board.numbers[start] != check_number);
-    check = check && (board.numbers[start+9] != check_number);
-    check = check && (board.numbers[start+18] != check_number);
-    check = check && (board.numbers[start+27] != check_number);
-    check = check && (board.numbers[start+36] != check_number);
-    check = check && (board.numbers[start+45] != check_number);
-    check = check && (board.numbers[start+54] != check_number);
-    check = check && (board.numbers[start+63] != check_number);
-    check = check && (board.numbers[start+72] != check_number);
-
-    start = bigsquare_refs[pos];
-    check = check && (board.numbers[bigsquare_refs_pos[start][0]] != check_number);
-    check = check && (board.numbers[bigsquare_refs_pos[start][1]] != check_number);
-    check = check && (board.numbers[bigsquare_refs_pos[start][2]] != check_number);
-    check = check && (board.numbers[bigsquare_refs_pos[start][3]] != check_number);
-    check = check && (board.numbers[bigsquare_refs_pos[start][4]] != check_number);
-    check = check && (board.numbers[bigsquare_refs_pos[start][5]] != check_number);
-    check = check && (board.numbers[bigsquare_refs_pos[start][6]] != check_number);
-    check = check && (board.numbers[bigsquare_refs_pos[start][7]] != check_number);
-    check = check && (board.numbers[bigsquare_refs_pos[start][8]] != check_number);
-	return check;
-}
 
 bool number_can_only_go(unsigned char pos, unsigned char check_number) {
 	bool row_only_check, column_only_check, bigsquare_only_check;
@@ -117,27 +121,21 @@ bool number_can_only_go(unsigned char pos, unsigned char check_number) {
 	row_only_check = true;
 	for (int k = (pos - (pos % 9)); k < (pos - (pos % 9) +9); k++) {
 		if (k==pos) {continue;}
-		if(number_is_possibe(k,check_number)) {
-			row_only_check = false;
-		}
+		row_only_check &= !(board.numbers[k] & number_masks[check_number-1]);
 	}
 
 
 	column_only_check = true;
 	for (int k = (pos%9); k < 81; k+=9) {
 	    if(k==pos) {continue;}
-		if(number_is_possibe(k,check_number)) {
-					column_only_check = false;
-				}
+		column_only_check &= !(board.numbers[k] & number_masks[check_number-1]);
 	}
 	bigsquare_only_check = true;
-	unsigned char bigsquare = bigsquare_refs[pos];
+		unsigned char bigsquare = bigsquare_refs[pos];
 
 	for (int k = 0; k < 9; k++) {
 		if(bigsquare_refs_pos[bigsquare][k] == pos) { continue ;}
-		if (number_is_possibe(bigsquare_refs_pos[bigsquare][k],check_number)) {
-			bigsquare_only_check = false;
-		}
+		  bigsquare_only_check &= !(board.numbers[bigsquare_refs_pos[bigsquare][k]] & number_masks[check_number-1]);
 		}
     // TODO: other cases??
 
@@ -148,90 +146,91 @@ bool number_can_only_go(unsigned char pos, unsigned char check_number) {
 	return false;
 }
 
-int possibility_count(unsigned char pos) {
+unsigned char possibility_count(unsigned char pos) {
 	// Work out possible numbers
-	if(board.numbers[pos] != 0) {
+	if(board.numbers[pos] & 0x80000000) {
 		return 0;
 	}
-	if(board.possible_updated[pos] == board.update_counter) {
-		return board.possible_count[pos];
-	}
+	unsigned char count = 0;
+	uint32_t working_copy = board.numbers[pos];
+	// Do a POPCOUNT of the lower 9 bits
+   count += ((working_copy) %2);
+   count += ((working_copy >>= 1) %2);
+   count += ((working_copy >>= 1) %2);
+   count += ((working_copy >>= 1) %2);
+   count += ((working_copy >>= 1) %2);
+   count += ((working_copy >>= 1) %2);
+   count += ((working_copy >>= 1) %2);
+   count += ((working_copy >>= 1) %2);
+   count += ((working_copy >>= 1) %2);
+   return count;
+}
 
-	bool possible[10] = { true, true, true, true, true, true, true, true,
-			true, true };
-
-	// Check the numbers in the row and remove them from possible numbers.
+/**
+ *  Set a number on the board and remove possiblites from other squares.
+ *  There will be a maximium of 82 sets so this can be more expensive if
+ *  it makes checks quicker
+ */
+void set_number(unsigned char pos, unsigned char number) {
+	uint32_t number_mask = number_masks[number-1];
+	uint32_t shifted_mask = number_mask << 16;
+	board.numbers[pos] |= 0x80000000 | shifted_mask; // Set the number and the solved flag.
+    board.numbers[pos] &= ~0x000001FF; // Remove any possiblities from the square.
+// TODO: check here for pos 33 on creation and change.
 	unsigned char start = pos - (pos % 9);
-	possible[board.numbers[start]] = false;
-	possible[board.numbers[start+1]] = false;
-	possible[board.numbers[start+2]] = false;
-	possible[board.numbers[start+3]] = false;
-	possible[board.numbers[start+4]] = false;
-	possible[board.numbers[start+5]] = false;
-	possible[board.numbers[start+6]] = false;
-	possible[board.numbers[start+7]] = false;
-	possible[board.numbers[start+8]] = false;
+	board.numbers[start] &= ~number_mask;
+	board.numbers[start+1] &= ~number_mask;
+	board.numbers[start+2] &= ~number_mask;
+	board.numbers[start+3] &= ~number_mask;
+	board.numbers[start+4] &= ~number_mask;
+	board.numbers[start+5] &= ~number_mask;
+	board.numbers[start+6] &= ~number_mask;
+	board.numbers[start+7] &= ~number_mask;
+	board.numbers[start+8] &= ~number_mask;
 
 	start = pos%9;
     // Check the numbers in the col and remove them from possible numbers.
-	possible[board.numbers[start]] = false;
-	possible[board.numbers[start+9]] = false;
-	possible[board.numbers[start+18]] = false;
-	possible[board.numbers[start+27]] = false;
-	possible[board.numbers[start+36]] = false;
-	possible[board.numbers[start+45]] = false;
-	possible[board.numbers[start+54]] = false;
-	possible[board.numbers[start+63]] = false;
-	possible[board.numbers[start+72]] = false;
+	board.numbers[start] &= ~number_mask;
+	board.numbers[start+9] &= ~number_mask;
+	board.numbers[start+18] &= ~number_mask;
+	board.numbers[start+27] &= ~number_mask;
+	board.numbers[start+36] &= ~number_mask;
+	board.numbers[start+45] &= ~number_mask;
+	board.numbers[start+54] &= ~number_mask;
+	board.numbers[start+63] &= ~number_mask;
+	board.numbers[start+72] &= ~number_mask;
 
 	start = bigsquare_refs[pos];
 
-	possible[board.numbers[bigsquare_refs_pos[start][0]]] = false;
-	possible[board.numbers[bigsquare_refs_pos[start][1]]] = false;
-	possible[board.numbers[bigsquare_refs_pos[start][2]]] = false;
-	possible[board.numbers[bigsquare_refs_pos[start][3]]] = false;
-	possible[board.numbers[bigsquare_refs_pos[start][4]]] = false;
-	possible[board.numbers[bigsquare_refs_pos[start][5]]] = false;
-	possible[board.numbers[bigsquare_refs_pos[start][6]]] = false;
-	possible[board.numbers[bigsquare_refs_pos[start][7]]] = false;
-	possible[board.numbers[bigsquare_refs_pos[start][8]]] = false;
-
-
-
-	int possible_count = 0;
-	for (int k = 1; k < 10; k++) {
-		if (possible[k]) {
-			possible_count++;
-		}
-
-
-	}
-	board.possible_count[pos] = possible_count;
-	board.possible_updated[pos] = board.update_counter;
-	return possible_count;
+	board.numbers[bigsquare_refs_pos[start][0]] &= ~number_mask;
+	board.numbers[bigsquare_refs_pos[start][1]] &= ~number_mask;
+	board.numbers[bigsquare_refs_pos[start][2]] &= ~number_mask;
+	board.numbers[bigsquare_refs_pos[start][3]] &= ~number_mask;
+	board.numbers[bigsquare_refs_pos[start][4]] &= ~number_mask;
+	board.numbers[bigsquare_refs_pos[start][5]] &= ~number_mask;
+	board.numbers[bigsquare_refs_pos[start][6]] &= ~number_mask;
+	board.numbers[bigsquare_refs_pos[start][7]] &= ~number_mask;
+	board.numbers[bigsquare_refs_pos[start][8]] &= ~number_mask;
 }
-
 
 int solve_board(const char instring[82]) {
 
 
+	//std::fill_n(board, 81, 0x1FF);
+    //TODO: set the location number
 
 	// Put string into 9x9 array for easier refernce
 	for (int i = 0; i < 81; i++) {
-		if (instring[i] >= 48 && instring[i] < 58) {
-			board.numbers[i] = instring[i] - 48;
-			board.possible_count[i]=0;
-		} else {
-			board.numbers[i] = 0;
-			board.possible_count[i]=9;
-		}
-		board.possible_updated[i] = -1;
+		board.numbers[i] = 0x000001FF;
 	}
-    board.update_counter=0;
-
+	for (int i = 0; i < 81; i++) {
+        if (instring[i] > 48 && instring[i] < 58) {
+			set_number(i,instring[i] - 48);
+		}
+	}
 	// Output board
     #ifdef DEBUG
-	print_board(board);
+	print_board();
     #endif
 	unsigned char check_number = 0;
 	bool board_changed;
@@ -241,41 +240,39 @@ int solve_board(const char instring[82]) {
 		// Iterate over the numbers 1-9 indefintly.
 		for (check_number = 1; check_number < 10; check_number++) {
 			for (unsigned char i = 0; i < 81; i++) {
-					//Only look blank squares.
-					if (board.numbers[i] == 0) {
 						// First check if it is possible to place check_number in this square
-						if (!number_is_possibe(i,check_number)) {
+						if ((board.numbers[i] & 0x80000000) || !(number_masks[check_number-1] & board.numbers[i])) {
 							continue;
 						}
 						// Then check if check_number HAS to go in this square
 						// Work out possible numbers
 						// TODO: investigate sets.
-						int possible_count = possibility_count(i);
+						int possible_count = possibility_count(i); // Is this correct?
+						//cout << possible_count << endl;
+						// TODO: debug from here on in.
 						if (possible_count == 1) {
-							board.numbers[i] = check_number;
+							set_number(i,check_number);
 							board_changed = true;
-							board.update_counter++;
                             #ifdef DEBUG
 							cout << char(i%9+48) << ',' << char(i/9+48) << '=' << char(check_number+48) << " has to go"<< endl;
-							print_board(board);
+							print_board();
                             #endif
 							continue;
 						}
 
 						// Finally check if it is only possible for check_number to go in this square.
-                       if(number_can_only_go(i,check_number)) {
-                        	board.numbers[i] = check_number;
-                            board_changed = true;
-                            board.update_counter++;
+                       // TODO: debug this.
+						if(number_can_only_go(i,check_number)) {
+                    	    set_number(i,check_number);
+                    	   	board_changed = true;
                             #ifdef DEBUG
 							cout << char(i%9+48) << ',' << char(i/9+48)  << '=' << char(check_number+48) << " only possible" << endl;
-							print_board(board);
+							print_board();
                             #endif
                        }
 
 				}
 			}
-		}
 
 		// If after checking all numbers no changes have been made then exit.
 		if (!board_changed) {
@@ -286,13 +283,16 @@ int solve_board(const char instring[82]) {
 	// Check to see if solved.
     bool solved = true;
     for (int i = 0; i < 81; i++) {
-    	if (board.numbers[i] == 0) solved = false;
+    	if (!(board.numbers[i] & 0x80000000)) solved = false;
     }
     // TODO: add validator to check results (very important for testing).
 
 	// Output final board
     #ifdef DEBUG
-	print_board(board);
+	print_board();
     #endif
+
 	return (int) solved;
+
+	return 0;
 }

@@ -42,6 +42,7 @@ int main() {
 	         // NO timer
 	         }
 	#endif
+	setup_solver();
 	while (getline(cin,instring)) {
       const char * inchars;
       inchars= instring.c_str();

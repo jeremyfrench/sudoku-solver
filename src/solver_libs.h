@@ -162,11 +162,8 @@ bool number_can_only_go(unsigned char pos, unsigned char check_number) {
 	bigsquare_only_check &= !(board[xrefs[pos][18]] & check_mask);
 	bigsquare_only_check &= !(board[xrefs[pos][19]] & check_mask);
 
-	if (bigsquare_only_check || row_only_check
-			|| column_only_check) {
-		return true;
-	}
-	return false;
+	return (bigsquare_only_check || row_only_check
+			|| column_only_check);
 }
 
 unsigned char possibility_count(unsigned char pos) {
@@ -195,30 +192,31 @@ unsigned char possibility_count(unsigned char pos) {
  *  it makes checks quicker
  */
 void set_number(unsigned char pos, unsigned char number) {
-	uint32_t number_mask = number_masks[number-1];
+	const uint32_t number_mask = ~number_masks[number-1];
 	uint32_t shifted_mask = number_mask << 16;
 	board[pos] |= 0x80000000 | shifted_mask; // Set the number and the solved flag.
     board[pos] &= ~0x000001FF; // Remove any possiblities from the square.
-	board[xrefs[pos][0]] &= ~number_mask;
-    board[xrefs[pos][1]] &= ~number_mask;
-    board[xrefs[pos][2]] &= ~number_mask;
-    board[xrefs[pos][3]] &= ~number_mask;
-    board[xrefs[pos][4]] &= ~number_mask;
-    board[xrefs[pos][5]] &= ~number_mask;
-    board[xrefs[pos][6]] &= ~number_mask;
-    board[xrefs[pos][7]] &= ~number_mask;
-    board[xrefs[pos][8]] &= ~number_mask;
-    board[xrefs[pos][9]] &= ~number_mask;
-    board[xrefs[pos][10]] &= ~number_mask;
-    board[xrefs[pos][11]] &= ~number_mask;
-    board[xrefs[pos][12]] &= ~number_mask;
-    board[xrefs[pos][13]] &= ~number_mask;
-    board[xrefs[pos][14]] &= ~number_mask;
-    board[xrefs[pos][15]] &= ~number_mask;
-    board[xrefs[pos][16]] &= ~number_mask;
-    board[xrefs[pos][17]] &= ~number_mask;
-    board[xrefs[pos][18]] &= ~number_mask;
-    board[xrefs[pos][19]] &= ~number_mask;
+
+	board[xrefs[pos][0]] &= number_mask;
+    board[xrefs[pos][1]] &= number_mask;
+    board[xrefs[pos][2]] &= number_mask;
+    board[xrefs[pos][3]] &= number_mask;
+    board[xrefs[pos][4]] &= number_mask;
+    board[xrefs[pos][5]] &= number_mask;
+    board[xrefs[pos][6]] &= number_mask;
+    board[xrefs[pos][7]] &= number_mask;
+    board[xrefs[pos][8]] &= number_mask;
+    board[xrefs[pos][9]] &= number_mask;
+    board[xrefs[pos][10]] &= number_mask;
+    board[xrefs[pos][11]] &= number_mask;
+    board[xrefs[pos][12]] &= number_mask;
+    board[xrefs[pos][13]] &= number_mask;
+    board[xrefs[pos][14]] &= number_mask;
+    board[xrefs[pos][15]] &= number_mask;
+    board[xrefs[pos][16]] &= number_mask;
+    board[xrefs[pos][17]] &= number_mask;
+    board[xrefs[pos][18]] &= number_mask;
+    board[xrefs[pos][19]] &= number_mask;
 }
 
 void setup_solver() {
@@ -275,6 +273,7 @@ int solve_board(const char instring[82]) {
 	for (unsigned char i = 0; i < 81; i++) {
 		board[i] = 0x000001FF;
 	}
+
 	for (int i = 0; i < 81; i++) {
         if (instring[i] > 48 && instring[i] < 58) {
 			set_number(i,instring[i] - 48);

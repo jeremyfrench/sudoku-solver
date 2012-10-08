@@ -191,9 +191,10 @@ unsigned char possibility_count(unsigned char pos) {
  *  There will be a maximium of 82 sets so this can be more expensive if
  *  it makes checks quicker
  */
-void set_number(unsigned char pos, unsigned char number) {
-	const uint32_t number_mask = ~number_masks[number-1];
-	uint32_t shifted_mask = number_mask << 16;
+void set_number(unsigned char pos, uint32_t mask) {
+	mask &= 0x000001FF;
+	uint32_t number_mask = ~mask;
+	uint32_t shifted_mask = mask << 16;
 	board[pos] |= 0x80000000 | shifted_mask; // Set the number and the solved flag.
     board[pos] &= ~0x000001FF; // Remove any possiblities from the square.
 
@@ -276,50 +277,48 @@ int solve_board(const char instring[82]) {
 
 	for (int i = 0; i < 81; i++) {
         if (instring[i] > 48 && instring[i] < 58) {
-			set_number(i,instring[i] - 48);
+			set_number(i,number_masks[instring[i] - 49]);
 		}
 	}
 	// Output board
     #ifdef DEBUG
 	print_board();
     #endif
-	unsigned char check_number = 0;
 	bool board_changed;
 	// Start with a slow but potentially easy to understand algrothim
 	for (;;) {
 		board_changed = false;
 		// Iterate over the numbers 1-9 indefintly.
-		for (check_number = 1; check_number < 10; check_number++) {
 			for (unsigned char i = 0; i < 81; i++) {
-						// First check if it is possible to place check_number in this square
-						if ((board[i] & 0x80000000) || !(number_masks[check_number-1] & board[i])) {
-							continue;
-						}
-						// Then check if check_number HAS to go in this square
-						// Work out possible numbers
-						// TODO: investigate sets.
-						int possible_count = possibility_count(i); // Is this correct?
-						//cout << possible_count << endl;
-						// TODO: debug from here on in.
-						if (possible_count == 1) {
-							set_number(i,check_number);
-							board_changed = true;
-                            #ifdef DEBUG
-							cout << char(i%9+48) << ',' << char(i/9+48) << '=' << char(check_number+48) << " has to go"<< endl;
-							print_board();
-                            #endif
-							continue;
-						}
-
-						// Finally check if it is only possible for check_number to go in this square.
-                       // TODO: debug this.
-						if(number_can_only_go(i,check_number)) {
-                    	    set_number(i,check_number);
+				if (board[i] & 0x80000000) {
+					continue;
+				}
+				int possible_count = possibility_count(i);
+				if (possible_count == 1) {
+				    set_number(i,board[i]);
+					board_changed = true;
+				    #ifdef DEBUG
+					  cout << char(i%9+48) << ',' << char(i/9+48) << '=' << /* char(check_number+48) <<*/ "To calculate has to go"<< endl;
+					print_board();
+				    #endif
+				  continue;
+				}
+				uint32_t number_copy = board[i];
+				for(unsigned char check_number = 1; check_number < 10; check_number++) {
+					if(!(number_copy %2)) {
+						number_copy >>= 1;
+						continue;
+					}
+					number_copy >>=1;
+					// Check if it is only possible for check_number to go in this square.
+                    	if(number_can_only_go(i,check_number)) {
+                    	    set_number(i,number_masks[check_number-1]);
                     	   	board_changed = true;
                             #ifdef DEBUG
 							cout << char(i%9+48) << ',' << char(i/9+48)  << '=' << char(check_number+48) << " only possible" << endl;
 							print_board();
                             #endif
+							break;
                        }
 
 				}

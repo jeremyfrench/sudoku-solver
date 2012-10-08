@@ -87,7 +87,7 @@ uint32_t board[81];
  * 17-18 Bigsqare X row
  * 19-20 Bigsqare X col
  */
-unsigned char xrefs[81][20];
+uint32_t * xrefs[81][20];
 
 
 void print_board() {
@@ -135,32 +135,32 @@ bool number_can_only_go(unsigned char pos, unsigned char check_number) {
 	column_only_check = true;
 	bigsquare_only_check = true;
 
-	row_only_check &= !(board[xrefs[pos][0]]  & check_mask);
-	row_only_check &= !(board[xrefs[pos][1]]  & check_mask);
-	row_only_check &= !(board[xrefs[pos][2]]  & check_mask);
-	row_only_check &= !(board[xrefs[pos][3]]  & check_mask);
-	row_only_check &= !(board[xrefs[pos][4]]  & check_mask);
-	row_only_check &= !(board[xrefs[pos][5]]  & check_mask);
-	row_only_check &= !(board[xrefs[pos][16]]  & check_mask);
-	row_only_check &= !(board[xrefs[pos][17]]  & check_mask);
+	row_only_check &= !(*xrefs[pos][0]  & check_mask);
+	row_only_check &= !(*xrefs[pos][1]  & check_mask);
+	row_only_check &= !(*xrefs[pos][2]  & check_mask);
+	row_only_check &= !(*xrefs[pos][3]  & check_mask);
+	row_only_check &= !(*xrefs[pos][4]  & check_mask);
+	row_only_check &= !(*xrefs[pos][5]  & check_mask);
+	row_only_check &= !(*xrefs[pos][16]  & check_mask);
+	row_only_check &= !(*xrefs[pos][17]  & check_mask);
 
-	column_only_check &= !(board[xrefs[pos][6]] & check_mask);
-	column_only_check &= !(board[xrefs[pos][7]] & check_mask);
-	column_only_check &= !(board[xrefs[pos][8]] & check_mask);
-	column_only_check &= !(board[xrefs[pos][9]] & check_mask);
-	column_only_check &= !(board[xrefs[pos][10]] & check_mask);
-	column_only_check &= !(board[xrefs[pos][11]] & check_mask);
-	column_only_check &= !(board[xrefs[pos][18]] & check_mask);
-	column_only_check &= !(board[xrefs[pos][19]] & check_mask);
+	column_only_check &= !(*xrefs[pos][6] & check_mask);
+	column_only_check &= !(*xrefs[pos][7] & check_mask);
+	column_only_check &= !(*xrefs[pos][8] & check_mask);
+	column_only_check &= !(*xrefs[pos][9] & check_mask);
+	column_only_check &= !(*xrefs[pos][10] & check_mask);
+	column_only_check &= !(*xrefs[pos][11] & check_mask);
+	column_only_check &= !(*xrefs[pos][18] & check_mask);
+	column_only_check &= !(*xrefs[pos][19] & check_mask);
 
-	bigsquare_only_check &= !(board[xrefs[pos][12]] & check_mask);
-	bigsquare_only_check &= !(board[xrefs[pos][13]] & check_mask);
-	bigsquare_only_check &= !(board[xrefs[pos][14]] & check_mask);
-	bigsquare_only_check &= !(board[xrefs[pos][15]] & check_mask);
-	bigsquare_only_check &= !(board[xrefs[pos][16]] & check_mask);
-	bigsquare_only_check &= !(board[xrefs[pos][17]] & check_mask);
-	bigsquare_only_check &= !(board[xrefs[pos][18]] & check_mask);
-	bigsquare_only_check &= !(board[xrefs[pos][19]] & check_mask);
+	bigsquare_only_check &= !(*xrefs[pos][12] & check_mask);
+	bigsquare_only_check &= !(*xrefs[pos][13] & check_mask);
+	bigsquare_only_check &= !(*xrefs[pos][14] & check_mask);
+	bigsquare_only_check &= !(*xrefs[pos][15] & check_mask);
+	bigsquare_only_check &= !(*xrefs[pos][16] & check_mask);
+	bigsquare_only_check &= !(*xrefs[pos][17] & check_mask);
+	bigsquare_only_check &= !(*xrefs[pos][18] & check_mask);
+	bigsquare_only_check &= !(*xrefs[pos][19] & check_mask);
 
 	return (bigsquare_only_check || row_only_check
 			|| column_only_check);
@@ -198,26 +198,26 @@ void set_number(unsigned char pos, uint32_t mask) {
 	board[pos] |= 0x80000000 | shifted_mask; // Set the number and the solved flag.
     board[pos] &= ~0x000001FF; // Remove any possiblities from the square.
 
-	board[xrefs[pos][0]] &= number_mask;
-    board[xrefs[pos][1]] &= number_mask;
-    board[xrefs[pos][2]] &= number_mask;
-    board[xrefs[pos][3]] &= number_mask;
-    board[xrefs[pos][4]] &= number_mask;
-    board[xrefs[pos][5]] &= number_mask;
-    board[xrefs[pos][6]] &= number_mask;
-    board[xrefs[pos][7]] &= number_mask;
-    board[xrefs[pos][8]] &= number_mask;
-    board[xrefs[pos][9]] &= number_mask;
-    board[xrefs[pos][10]] &= number_mask;
-    board[xrefs[pos][11]] &= number_mask;
-    board[xrefs[pos][12]] &= number_mask;
-    board[xrefs[pos][13]] &= number_mask;
-    board[xrefs[pos][14]] &= number_mask;
-    board[xrefs[pos][15]] &= number_mask;
-    board[xrefs[pos][16]] &= number_mask;
-    board[xrefs[pos][17]] &= number_mask;
-    board[xrefs[pos][18]] &= number_mask;
-    board[xrefs[pos][19]] &= number_mask;
+	*xrefs[pos][0] &= number_mask;
+    *xrefs[pos][1] &= number_mask;
+    *xrefs[pos][2] &= number_mask;
+    *xrefs[pos][3] &= number_mask;
+    *xrefs[pos][4] &= number_mask;
+    *xrefs[pos][5] &= number_mask;
+    *xrefs[pos][6] &= number_mask;
+    *xrefs[pos][7] &= number_mask;
+    *xrefs[pos][8] &= number_mask;
+    *xrefs[pos][9] &= number_mask;
+    *xrefs[pos][10] &= number_mask;
+    *xrefs[pos][11] &= number_mask;
+    *xrefs[pos][12] &= number_mask;
+    *xrefs[pos][13] &= number_mask;
+    *xrefs[pos][14] &= number_mask;
+    *xrefs[pos][15] &= number_mask;
+    *xrefs[pos][16] &= number_mask;
+    *xrefs[pos][17] &= number_mask;
+    *xrefs[pos][18] &= number_mask;
+    *xrefs[pos][19] &= number_mask;
 }
 
 void setup_solver() {
@@ -233,11 +233,11 @@ void setup_solver() {
 					   continue;
 				   }
 				   if (i/3 == k/3) {
-						xrefs[i][16+rowX] = k;
+						xrefs[i][16+rowX] = &board[k];
 						rowX++;
 						continue;
 					}
-					xrefs[i][j] = k;
+					xrefs[i][j] = &board[k];
 					j++;
 			   }
 			    for (int k = (i%9); k < 81; k+=9) {
@@ -245,11 +245,11 @@ void setup_solver() {
 			    	  continue;
 			        }
 			    	if(k/27 == i/27 && i!=k) {
-				    	xrefs[i][18+colX] = k;
+				    	xrefs[i][18+colX] = &board[k];
 				    	colX++;
 				    	continue;
 				    }
-					xrefs[i][j] = k;
+					xrefs[i][j] = &board[k];
 				    j++;
 			    }
 
@@ -258,7 +258,7 @@ void setup_solver() {
 				   unsigned char ref = bigsquare_refs_pos[bigsquare][k];
 				   if (ref/9 == i/9) { continue; } // Same row
 				   if (ref%9 == i%9) { continue; } // Same column
-				   xrefs[i][j] = ref;
+				   xrefs[i][j] = &board[ref];
 				   j++;
 				}
 		}

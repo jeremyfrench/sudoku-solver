@@ -53,12 +53,12 @@ int main() {
 		  solved_counter++;
 	  }
 	}
+    cout << "Solved " << solved_counter << " of " << counter <<" boards" << endl;
 	#ifdef __MACH__
 	ret = clock_get_time(aClock, &bTime);
 		         if (ret != KERN_SUCCESS) {
 		         // NO timer
 		         }
-    cout << "Solved " << solved_counter << " of " << counter <<" boards" << endl;
 // TODO: pad or format number
     cout << (bTime.tv_sec - aTime.tv_sec) << " Seconds ";
 	if(bTime.tv_sec - aTime.tv_sec >= 1) {

@@ -21,6 +21,12 @@ ple newspaper puzzles, but there is a lot left to learn about Sudoku solving.
 *  journey/0.0.6 Save board state and use bit masks rather than booleans
 *  journey/0.0.7 Calculate cross references for a square before proccessing boards so that loop and branching can be simplified while setting and checking numbers.
 
+Benchmarks as of 0.0.7 "compiled with -O2"
+
+Macbook Pro (Core i7 2.3Gz) : 2.7 seconds 
+Rasberry Pi : 17.3 seconds 
+
+
 ## Roadmap 
 
 Look at doing a tick toc approach, on the tic (even versions) speed up the solver on the tock (odd versions) solve more problems.

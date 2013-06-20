@@ -19,6 +19,7 @@
 #endif
 using namespace std;
 
+timespec diff(timespec start, timespec end);
 
 int main() {
    string instring;
@@ -62,7 +63,6 @@ int main() {
 		         if (ret != KERN_SUCCESS) {
 		         // NO timer
 		         }
-    cout << "Solved " << solved_counter << " of " << counter <<" boards" << endl;
 // TODO: pad or format number
     cout << (bTime.tv_sec - aTime.tv_sec) << " Seconds ";
 	if(bTime.tv_sec - aTime.tv_sec >= 1) {
@@ -75,7 +75,7 @@ int main() {
 	cout << endl;
     #elif defined(__linux__)
 	  clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time2);
-	  cout<<diff(time1,time2).tv_sec<<":"<<diff(time1,time2).tv_nsec<<endl;
+          cout << "in  " <<diff(time1,time2).tv_sec<<":"<<diff(time1,time2).tv_nsec<< " seconds" << endl;
     #endif
 	return 0;
 }

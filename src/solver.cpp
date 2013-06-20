@@ -25,7 +25,7 @@ int main() {
    int out;
    int counter = 0;
    int solved_counter = 0;
-    #ifdef __MACH__
+   #ifdef __MACH__
 	  kern_return_t ret;
 	  clock_serv_t aClock;
 	  mach_timespec_t aTime,bTime;
@@ -41,6 +41,9 @@ int main() {
 	         if (ret != KERN_SUCCESS) {
 	         // NO timer
 	         }
+    #elif defined(__linux__)
+	  timespec time1, time2;
+	  clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time1);
 	#endif
 	setup_solver();
 	while (getline(cin,instring)) {
@@ -53,6 +56,7 @@ int main() {
 		  solved_counter++;
 	  }
 	}
+	cout << "Solved " << solved_counter << " of " << counter <<" boards" << endl;
 	#ifdef __MACH__
 	ret = clock_get_time(aClock, &bTime);
 		         if (ret != KERN_SUCCESS) {
@@ -69,7 +73,22 @@ int main() {
 	}
 
 	cout << endl;
+    #elif defined(__linux__)
+	  clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time2);
+	  cout<<diff(time1,time2).tv_sec<<":"<<diff(time1,time2).tv_nsec<<endl;
     #endif
 	return 0;
 }
 
+timespec diff(timespec start, timespec end)
+{
+	timespec temp;
+	if ((end.tv_nsec-start.tv_nsec)<0) {
+		temp.tv_sec = end.tv_sec-start.tv_sec-1;
+		temp.tv_nsec = 1000000000+end.tv_nsec-start.tv_nsec;
+	} else {
+		temp.tv_sec = end.tv_sec-start.tv_sec;
+		temp.tv_nsec = end.tv_nsec-start.tv_nsec;
+	}
+	return temp;
+}

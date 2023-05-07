@@ -1,4 +1,5 @@
-# Journey of a Sudoku solver  
+# Journey of a Sudoku solver
+
 
 This project is an attempt to build a fast Sudoku solver. Starting with an algorithm which is basic and slow. Incrementally improving until it is hopefully quite good.
 
@@ -34,3 +35,5 @@ Look at doing a tick toc approach, on the tic (even versions) speed up the solve
 *  0.3 Branching and guessing
 
 
+
+NB: This project was coded mostly while commuting and sleep deprived. 
